@@ -1,190 +1,248 @@
-let allQuestions = [];
-let examQuestions = [];
+const API_URL =
+  "https://aviation-test-api.govapi838.workers.dev";
 
+const QUESTIONS_API = `${API_URL}/api/questions`;
+const SUBMIT_API = `${API_URL}/api/submit`;
+
+let questions = [];
 let currentQuestion = 0;
 let answers = {};
-let markedForReview = {};
+let reviewQuestions = new Set();
 
-let remainingSeconds = 50 * 60;
+let examStarted = false;
+let examSubmitted = false;
+
+const EXAM_MINUTES = 50;
+let timeLeft = EXAM_MINUTES * 60;
 let timerInterval = null;
 
-let student = {
-  name: "",
-  roll: "",
-  batch: "",
-  email: ""
-};
 
-let examFinished = false;
-
-
-/* LOAD QUESTIONS */
-
-async function loadQuestions() {
-
-  const response = await fetch("questions.json");
-
-  if (!response.ok) {
-    throw new Error("Unable to load questions.json");
-  }
-
-  allQuestions = await response.json();
-
-  if (allQuestions.length < 50) {
-    throw new Error("Question bank must contain at least 50 questions.");
-  }
-}
-
-
-/* START */
+// ===============================
+// START EXAM
+// ===============================
 
 async function startExam() {
+  if (examStarted) return;
 
-  try {
+  const name = document.getElementById("studentName").value.trim();
+  const rollNo = document.getElementById("rollNo").value.trim();
+  const batch = document.getElementById("batch").value.trim();
+  const email = document.getElementById("email").value.trim();
 
-    student.name = document.getElementById("studentName").value.trim();
-    student.roll = document.getElementById("rollNo").value.trim();
-    student.batch = document.getElementById("batch").value.trim();
-    student.email = document.getElementById("email").value.trim();
-
-    if (!student.name ||
-        !student.roll ||
-        !student.batch ||
-        !student.email) {
-
-      alert("Please fill all student details.");
-      return;
-    }
-
-    await loadQuestions();
-
-    examQuestions = shuffle(
-      [...allQuestions]
-    ).slice(0, 50);
-
-    examQuestions = examQuestions.map(q => {
-
-      return {
-        ...q,
-        options: shuffle([...q.options])
-      };
-
-    });
-
-    currentQuestion = 0;
-    answers = {};
-    markedForReview = {};
-    remainingSeconds = 50 * 60;
-    examFinished = false;
-
-    document.getElementById("startScreen")
-      .classList.add("hidden");
-
-    document.getElementById("examScreen")
-      .classList.remove("hidden");
-
-    renderQuestion();
-    renderPalette();
-    startTimer();
-
-    enableExamSecurity();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Could not start the exam.\n\n" +
-      error.message
-    );
-  }
-}
-
-
-/* QUESTION */
-
-function renderQuestion() {
-
-  const q = examQuestions[currentQuestion];
-
-  document.getElementById("questionNumber").textContent =
-    `Question ${currentQuestion + 1} of ${examQuestions.length}`;
-
-  document.getElementById("levelBadge").textContent =
-    `LEVEL ${q.level}`;
-
-  document.getElementById("questionText").textContent =
-    q.question;
-
-  const optionsDiv =
-    document.getElementById("options");
-
-  optionsDiv.innerHTML = "";
-
-  q.options.forEach((option, index) => {
-
-    const label = document.createElement("label");
-
-    label.className = "option";
-
-    const radio = document.createElement("input");
-
-    radio.type = "radio";
-    radio.name = "answer";
-    radio.value = option;
-
-    if (answers[currentQuestion] === option) {
-      radio.checked = true;
-    }
-
-    radio.addEventListener("change", () => {
-
-      answers[currentQuestion] = option;
-
-      renderPalette();
-
-    });
-
-    label.appendChild(radio);
-    label.appendChild(
-      document.createTextNode(option)
-    );
-
-    optionsDiv.appendChild(label);
-
-  });
-
-  document.getElementById("previousBtn").disabled =
-    currentQuestion === 0;
-
-  document.getElementById("nextBtn").textContent =
-    currentQuestion === examQuestions.length - 1
-      ? "Finish →"
-      : "Next →";
-
-  renderPalette();
-}
-
-
-/* NEXT */
-
-function nextQuestion() {
-
-  if (currentQuestion === examQuestions.length - 1) {
-
-    confirmSubmit();
-
+  if (!name || !rollNo || !batch || !email) {
+    alert("Please fill all student details.");
     return;
   }
 
-  currentQuestion++;
+  const startButton = document.querySelector("#startScreen button");
 
-  renderQuestion();
+  if (startButton) {
+    startButton.disabled = true;
+    startButton.textContent = "Loading Test...";
+  }
 
+  try {
+    const response = await fetch(QUESTIONS_API, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to load questions.");
+    }
+
+    const data = await response.json();
+
+    if (
+      data.status !== "success" ||
+      !Array.isArray(data.questions) ||
+      data.questions.length !== 50
+    ) {
+      throw new Error("Question data is invalid.");
+    }
+
+    questions = data.questions;
+
+    answers = {};
+    reviewQuestions = new Set();
+
+    currentQuestion = 0;
+
+    timeLeft = (data.timeMinutes || EXAM_MINUTES) * 60;
+
+    examStarted = true;
+    examSubmitted = false;
+
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("examScreen").style.display = "block";
+
+    startTimer();
+    renderQuestion();
+    renderPalette();
+
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Unable to load the test.\n\n" +
+      "Please check your internet connection and try again."
+    );
+
+    if (startButton) {
+      startButton.disabled = false;
+      startButton.textContent = "Start Test";
+    }
+  }
 }
 
 
-/* PREVIOUS */
+// ===============================
+// TIMER
+// ===============================
+
+function startTimer() {
+  clearInterval(timerInterval);
+
+  updateTimerDisplay();
+
+  timerInterval = setInterval(() => {
+
+    if (examSubmitted) {
+      clearInterval(timerInterval);
+      return;
+    }
+
+    timeLeft--;
+
+    updateTimerDisplay();
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+
+      alert("Time is over. Your test will be submitted automatically.");
+
+      submitTest(true);
+    }
+
+  }, 1000);
+}
+
+
+function updateTimerDisplay() {
+
+  const timer = document.getElementById("timer");
+
+  if (!timer) return;
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  timer.textContent =
+    `${String(minutes).padStart(2, "0")}:` +
+    `${String(seconds).padStart(2, "0")}`;
+
+  if (timeLeft <= 300) {
+    timer.classList.add("warning");
+  } else {
+    timer.classList.remove("warning");
+  }
+}
+
+
+// ===============================
+// RENDER QUESTION
+// ===============================
+
+function renderQuestion() {
+
+  if (!questions.length) return;
+
+  const q = questions[currentQuestion];
+
+  const questionNumber =
+    document.getElementById("questionNumber");
+
+  const level =
+    document.getElementById("level");
+
+  const questionText =
+    document.getElementById("question");
+
+  const optionsContainer =
+    document.getElementById("options");
+
+  if (questionNumber) {
+    questionNumber.textContent =
+      `Question ${currentQuestion + 1} of ${questions.length}`;
+  }
+
+  if (level) {
+    level.textContent = `Level ${q.level}`;
+  }
+
+  if (questionText) {
+    questionText.textContent = q.question;
+  }
+
+  if (optionsContainer) {
+
+    optionsContainer.innerHTML = "";
+
+    q.options.forEach((option, index) => {
+
+      const optionButton =
+        document.createElement("button");
+
+      optionButton.type = "button";
+
+      optionButton.className = "option";
+
+      if (answers[q.id] === option) {
+        optionButton.classList.add("selected");
+      }
+
+      optionButton.innerHTML =
+        `<span class="option-letter">${String.fromCharCode(65 + index)}</span>` +
+        `<span>${escapeHtml(option)}</span>`;
+
+      optionButton.addEventListener("click", () => {
+
+        answers[q.id] = option;
+
+        renderQuestion();
+        renderPalette();
+
+      });
+
+      optionsContainer.appendChild(optionButton);
+
+    });
+  }
+
+  updateNavigationButtons();
+  updatePalette();
+}
+
+
+// ===============================
+// NAVIGATION
+// ===============================
+
+function nextQuestion() {
+
+  if (currentQuestion < questions.length - 1) {
+
+    currentQuestion++;
+
+    renderQuestion();
+
+  } else {
+
+    alert("You are on the last question.");
+
+  }
+}
+
 
 function previousQuestion() {
 
@@ -199,381 +257,225 @@ function previousQuestion() {
 }
 
 
-/* CLEAR */
-
 function clearAnswer() {
 
-  delete answers[currentQuestion];
+  const q = questions[currentQuestion];
+
+  if (!q) return;
+
+  delete answers[q.id];
 
   renderQuestion();
-
-}
-
-
-/* REVIEW */
-
-function toggleReview() {
-
-  markedForReview[currentQuestion] =
-    !markedForReview[currentQuestion];
-
   renderPalette();
 
 }
 
 
-/* PALETTE */
+function toggleReview() {
+
+  const q = questions[currentQuestion];
+
+  if (!q) return;
+
+  if (reviewQuestions.has(q.id)) {
+
+    reviewQuestions.delete(q.id);
+
+  } else {
+
+    reviewQuestions.add(q.id);
+
+  }
+
+  updatePalette();
+
+}
+
+
+// ===============================
+// PALETTE
+// ===============================
 
 function renderPalette() {
 
   const palette =
     document.getElementById("questionPalette");
 
+  if (!palette) return;
+
   palette.innerHTML = "";
 
-  examQuestions.forEach((q, index) => {
+  questions.forEach((q, index) => {
 
     const button =
       document.createElement("button");
 
-    button.className = "palette-btn";
+    button.type = "button";
 
     button.textContent = index + 1;
 
-    if (answers[index]) {
-      button.classList.add("answered");
-    }
+    button.className = "palette-button";
 
-    if (markedForReview[index]) {
-      button.classList.add("reviewed");
-    }
-
-    if (index === currentQuestion) {
-      button.classList.add("current");
-    }
-
-    button.onclick = () => {
+    button.addEventListener("click", () => {
 
       currentQuestion = index;
 
       renderQuestion();
 
-    };
+    });
 
     palette.appendChild(button);
 
   });
 
+  updatePalette();
+
 }
 
 
-/* TIMER */
+function updatePalette() {
 
-function startTimer() {
+  const buttons =
+    document.querySelectorAll(".palette-button");
 
-  clearInterval(timerInterval);
+  buttons.forEach((button, index) => {
 
-  updateTimer();
+    const q = questions[index];
 
-  timerInterval = setInterval(() => {
+    button.classList.remove(
+      "current",
+      "answered",
+      "reviewed"
+    );
 
-    remainingSeconds--;
-
-    updateTimer();
-
-    if (remainingSeconds <= 0) {
-
-      clearInterval(timerInterval);
-
-      alert(
-        "Time is over. Your test will be submitted automatically."
-      );
-
-      finishExam();
-
+    if (index === currentQuestion) {
+      button.classList.add("current");
     }
 
-  }, 1000);
+    if (q && answers[q.id]) {
+      button.classList.add("answered");
+    }
+
+    if (q && reviewQuestions.has(q.id)) {
+      button.classList.add("reviewed");
+    }
+
+  });
 
 }
 
 
-function updateTimer() {
+// ===============================
+// NAVIGATION BUTTONS
+// ===============================
 
-  const minutes =
-    Math.floor(remainingSeconds / 60);
+function updateNavigationButtons() {
 
-  const seconds =
-    remainingSeconds % 60;
+  const previous =
+    document.getElementById("previousBtn");
 
-  document.getElementById("timer").textContent =
-    String(minutes).padStart(2, "0") +
-    ":" +
-    String(seconds).padStart(2, "0");
+  const next =
+    document.getElementById("nextBtn");
 
-}
+  if (previous) {
+    previous.disabled = currentQuestion === 0;
+  }
 
+  if (next) {
 
-/* SUBMIT */
-
-function confirmSubmit() {
-
-  const answered =
-    Object.keys(answers).length;
-
-  const unanswered =
-    examQuestions.length - answered;
-
-  const message =
-    `Answered: ${answered}\n` +
-    `Unanswered: ${unanswered}\n\n` +
-    `Are you sure you want to submit?`;
-
-  if (confirm(message)) {
-
-    finishExam();
+    next.disabled =
+      currentQuestion === questions.length - 1;
 
   }
 
 }
 
 
-/* FINISH */
+// ===============================
+// SUBMIT TEST
+// ===============================
 
-function finishExam() {
+async function submitTest(autoSubmit = false) {
 
-  if (examFinished) return;
+  if (examSubmitted) return;
 
-  examFinished = true;
+  if (!autoSubmit) {
 
-  clearInterval(timerInterval);
+    const unanswered =
+      questions.filter(q => !answers[q.id]).length;
 
-  calculateResult();
+    if (unanswered > 0) {
 
-}
+      const confirmSubmit =
+        confirm(
+          `${unanswered} question(s) are unanswered.\n\n` +
+          "Do you want to submit the test?"
+        );
 
-
-/* RESULT */
-
-function calculateResult() {
-
-  let correct = 0;
-  let wrong = 0;
-  let unanswered = 0;
-
-  examQuestions.forEach((q, index) => {
-
-    if (!answers[index]) {
-
-      unanswered++;
-
-    } else if (answers[index] === q.correct) {
-
-      correct++;
+      if (!confirmSubmit) {
+        return;
+      }
 
     } else {
 
-      wrong++;
+      const confirmSubmit =
+        confirm(
+          "Are you sure you want to submit the test?"
+        );
+
+      if (!confirmSubmit) {
+        return;
+      }
 
     }
 
-  });
-
-  const score = correct;
-
-  const percentage =
-    ((score / 50) * 100).toFixed(2);
-
-  const passed = score >= 38;
-
-  document.getElementById("examScreen")
-    .classList.add("hidden");
-
-  document.getElementById("resultScreen")
-    .classList.remove("hidden");
-
-  document.getElementById("resultName")
-    .textContent = student.name;
-
-  document.getElementById("resultRoll")
-    .textContent = student.roll;
-
-  document.getElementById("score")
-    .textContent = score;
-
-  document.getElementById("correctCount")
-    .textContent = correct;
-
-  document.getElementById("wrongCount")
-    .textContent = wrong;
-
-  document.getElementById("unansweredCount")
-    .textContent = unanswered;
-
-  document.getElementById("percentage")
-    .textContent = percentage + "%";
-
-  const status =
-    document.getElementById("resultStatus");
-
-  status.textContent =
-    passed ? "PASS" : "FAIL";
-
-  status.className =
-    passed ? "pass" : "fail";
-
-  showReview();
-
-}
-
-
-/* REVIEW ANSWERS */
-
-function showReview() {
-
-  const area =
-    document.getElementById("reviewArea");
-
-  area.innerHTML =
-    "<h2 style='text-align:center'>Answer Review</h2>";
-
-  examQuestions.forEach((q, index) => {
-
-    const item =
-      document.createElement("div");
-
-    const studentAnswer =
-      answers[index] || "Not Answered";
-
-    const isCorrect =
-      studentAnswer === q.correct;
-
-    item.className =
-      "review-item " +
-      (isCorrect
-        ? "review-correct"
-        : "review-wrong");
-
-    item.innerHTML = `
-      <b>Question ${index + 1}</b>
-      <p>${escapeHtml(q.question)}</p>
-
-      <p>
-        <b>Your Answer:</b>
-        ${escapeHtml(studentAnswer)}
-      </p>
-
-      <p>
-        <b>Correct Answer:</b>
-        ${escapeHtml(q.correct)}
-      </p>
-    `;
-
-    area.appendChild(item);
-
-  });
-
-}
-
-
-/* SHUFFLE */
-
-function shuffle(array) {
-
-  for (
-    let i = array.length - 1;
-    i > 0;
-    i--
-  ) {
-
-    const j =
-      Math.floor(Math.random() * (i + 1));
-
-    [
-      array[i],
-      array[j]
-    ] =
-    [
-      array[j],
-      array[i]
-    ];
-
   }
 
-  return array;
+  examSubmitted = true;
 
-}
+  clearInterval(timerInterval);
 
+  try {
 
-/* SECURITY */
+    const response =
+      await fetch(SUBMIT_API, {
 
-function enableExamSecurity() {
+        method: "POST",
 
-  document.addEventListener(
-    "contextmenu",
-    blockEvent
-  );
+        headers: {
+          "Content-Type": "application/json"
+        },
 
-  document.addEventListener(
-    "copy",
-    blockEvent
-  );
+        body: JSON.stringify({
 
-  document.addEventListener(
-    "cut",
-    blockEvent
-  );
+          answers: answers
 
-  document.addEventListener(
-    "paste",
-    blockEvent
-  );
+        })
 
-  document.addEventListener(
-    "keydown",
-    securityKeys
-  );
+      });
 
-  document.addEventListener(
-    "visibilitychange",
-    visibilityWarning
-  );
+    if (!response.ok) {
+      throw new Error("Submission failed.");
+    }
 
-}
+    const result =
+      await response.json();
 
+    if (result.status !== "success") {
+      throw new Error("Invalid result.");
+    }
 
-function blockEvent(e) {
+    showResult(result);
 
-  e.preventDefault();
+  } catch (error) {
 
-}
+    console.error(error);
 
+    examSubmitted = false;
 
-function securityKeys(e) {
-
-  if (
-    e.ctrlKey ||
-    e.metaKey ||
-    e.key === "F12" ||
-    e.key === "PrintScreen"
-  ) {
-
-    e.preventDefault();
-
-  }
-
-}
-
-
-function visibilityWarning() {
-
-  if (
-    document.hidden &&
-    !examFinished
-  ) {
-
-    console.log(
-      "Exam window/tab was left."
+    alert(
+      "There was a problem submitting your test.\n\n" +
+      "Please check your internet connection and try again."
     );
 
   }
@@ -581,36 +483,348 @@ function visibilityWarning() {
 }
 
 
-/* ESCAPE HTML */
+// ===============================
+// SHOW RESULT
+// ===============================
 
-function escapeHtml(text) {
+function showResult(result) {
 
-  const div =
-    document.createElement("div");
+  const examScreen =
+    document.getElementById("examScreen");
 
-  div.textContent =
-    String(text);
+  const resultScreen =
+    document.getElementById("resultScreen");
 
-  return div.innerHTML;
+  if (examScreen) {
+    examScreen.style.display = "none";
+  }
+
+  if (resultScreen) {
+    resultScreen.style.display = "block";
+  }
+
+  const resultStatus =
+    document.getElementById("resultStatus");
+
+  const score =
+    document.getElementById("score");
+
+  const correct =
+    document.getElementById("correct");
+
+  const wrong =
+    document.getElementById("wrong");
+
+  const unanswered =
+    document.getElementById("unanswered");
+
+  const percentage =
+    document.getElementById("percentage");
+
+  if (resultStatus) {
+    resultStatus.textContent = result.result;
+    resultStatus.className =
+      result.result === "PASS"
+        ? "pass"
+        : "fail";
+  }
+
+  if (score) {
+    score.textContent =
+      `${result.score} / ${result.total}`;
+  }
+
+  if (correct) {
+    correct.textContent = result.score;
+  }
+
+  if (wrong) {
+
+    wrong.textContent =
+      result.review.filter(
+        item =>
+          !item.correct &&
+          item.yourAnswer !== null
+      ).length;
+
+  }
+
+  if (unanswered) {
+
+    unanswered.textContent =
+      result.review.filter(
+        item => item.yourAnswer === null
+      ).length;
+
+  }
+
+  if (percentage) {
+    percentage.textContent =
+      `${result.percentage}%`;
+  }
+
+  window.finalResult = result;
 
 }
 
 
-/* FULLSCREEN */
+// ===============================
+// VIEW ANSWERS
+// ===============================
+
+function viewAnswers() {
+
+  if (!window.finalResult) return;
+
+  const result =
+    window.finalResult;
+
+  const reviewContainer =
+    document.getElementById("answerReview");
+
+  if (!reviewContainer) return;
+
+  reviewContainer.innerHTML = "";
+
+  result.review.forEach((item, index) => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "answer-review-item";
+
+    const yourAnswer =
+      item.yourAnswer === null
+        ? "Not answered"
+        : item.yourAnswer;
+
+    div.innerHTML = `
+      <h3>Question ${index + 1}</h3>
+      <p><strong>${escapeHtml(item.question)}</strong></p>
+      <p>Your answer: ${escapeHtml(yourAnswer)}</p>
+      <p>Correct answer: ${escapeHtml(item.correctAnswer)}</p>
+      <p>${escapeHtml(item.reason)}</p>
+    `;
+
+    reviewContainer.appendChild(div);
+
+  });
+
+}
+
+
+// ===============================
+// SECURITY / BASIC ANTI-CHEAT
+// ===============================
+
+document.addEventListener(
+  "contextmenu",
+  event => event.preventDefault()
+);
+
+document.addEventListener(
+  "copy",
+  event => event.preventDefault()
+);
+
+document.addEventListener(
+  "cut",
+  event => event.preventDefault()
+);
+
+document.addEventListener(
+  "paste",
+  event => event.preventDefault()
+);
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.ctrlKey ||
+      event.metaKey
+    ) {
+
+      const blockedKeys =
+        ["c", "v", "x", "u", "s", "p"];
+
+      if (
+        blockedKeys.includes(
+          event.key.toLowerCase()
+        )
+      ) {
+
+        event.preventDefault();
+
+      }
+
+    }
+
+    if (event.key === "F12") {
+
+      event.preventDefault();
+
+    }
+
+    if (
+      event.ctrlKey &&
+      event.shiftKey &&
+      ["I", "J", "C"].includes(event.key)
+    ) {
+
+      event.preventDefault();
+
+    }
+
+  }
+);
+
+
+// ===============================
+// TAB SWITCH DETECTION
+// ===============================
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if (
+      document.hidden &&
+      examStarted &&
+      !examSubmitted
+    ) {
+
+      console.log(
+        "Student left the exam tab."
+      );
+
+    }
+
+  }
+);
+
+
+// ===============================
+// FULLSCREEN DETECTION
+// ===============================
 
 document.addEventListener(
   "fullscreenchange",
   () => {
 
     if (
-      document.fullscreenElement === null &&
-      !examFinished
+      examStarted &&
+      !examSubmitted &&
+      !document.fullscreenElement
     ) {
 
       console.log(
-        "Fullscreen was exited."
+        "Student exited fullscreen."
       );
 
+    }
+
+  }
+);
+
+
+// ===============================
+// HTML ESCAPE
+// ===============================
+
+function escapeHtml(value) {
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+// ===============================
+// BUTTON CONNECTIONS
+// ===============================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    const startButton =
+      document.getElementById("startTestBtn");
+
+    const nextButton =
+      document.getElementById("nextBtn");
+
+    const previousButton =
+      document.getElementById("previousBtn");
+
+    const clearButton =
+      document.getElementById("clearBtn");
+
+    const reviewButton =
+      document.getElementById("reviewBtn");
+
+    const submitButton =
+      document.getElementById("submitBtn");
+
+    const viewAnswersButton =
+      document.getElementById("viewAnswersBtn");
+
+    if (startButton) {
+      startButton.addEventListener(
+        "click",
+        startExam
+      );
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener(
+        "click",
+        nextQuestion
+      );
+    }
+
+    if (previousButton) {
+      previousButton.addEventListener(
+        "click",
+        previousQuestion
+      );
+    }
+
+    if (clearButton) {
+      clearButton.addEventListener(
+        "click",
+        clearAnswer
+      );
+    }
+
+    if (reviewButton) {
+      reviewButton.addEventListener(
+        "click",
+        toggleReview
+      );
+    }
+
+    if (submitButton) {
+      submitButton.addEventListener(
+        "click",
+        () => submitTest(false)
+      );
+    }
+
+    if (viewAnswersButton) {
+      viewAnswersButton.addEventListener(
+        "click",
+        viewAnswers
+      );
     }
 
   }
