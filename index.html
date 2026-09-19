@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aviation Test Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- START SCREEN -->
+  <section id="startScreen" class="screen">
+    <div class="card start-card">
+      <h1>Aviation Test Portal</h1>
+
+      <h2>EASA / DGCA Module 8</h2>
+      <p>Submodule 03 – Theory of Flight</p>
+
+      <div class="exam-info">
+        <div><b>Questions:</b> 50</div>
+        <div><b>Marks:</b> 50</div>
+        <div><b>Pass Mark:</b> 38</div>
+        <div><b>Time:</b> 50 Minutes</div>
+      </div>
+
+      <input id="studentName" type="text" placeholder="Student Name">
+      <input id="rollNo" type="text" placeholder="Roll Number">
+      <input id="batch" type="text" placeholder="Batch">
+      <input id="email" type="email" placeholder="Email Address">
+
+      <button class="primary-btn" onclick="startExam()">
+        START EXAM
+      </button>
+    </div>
+  </section>
+
+
+  <!-- EXAM SCREEN -->
+  <section id="examScreen" class="screen hidden">
+
+    <header class="exam-header">
+      <div>
+        <h2>EASA / DGCA Module 8</h2>
+        <span>Submodule 03 – Theory of Flight</span>
+      </div>
+
+      <div class="timer-box">
+        <span>TIME LEFT</span>
+        <strong id="timer">50:00</strong>
+      </div>
+    </header>
+
+
+    <div class="exam-layout">
+
+      <!-- QUESTION AREA -->
+      <main class="question-area">
+
+        <div class="question-top">
+          <span id="questionNumber">Question 1 of 50</span>
+          <span id="levelBadge">LEVEL 1</span>
+        </div>
+
+        <div class="card question-card">
+
+          <h3 id="questionText"></h3>
+
+          <div id="options"></div>
+
+        </div>
+
+        <div class="navigation">
+
+          <button id="previousBtn"
+                  class="secondary-btn"
+                  onclick="previousQuestion()">
+            ← Previous
+          </button>
+
+          <button class="review-btn"
+                  onclick="toggleReview()">
+            ⚑ Mark for Review
+          </button>
+
+          <button class="clear-btn"
+                  onclick="clearAnswer()">
+            Clear
+          </button>
+
+          <button id="nextBtn"
+                  class="primary-btn"
+                  onclick="nextQuestion()">
+            Next →
+          </button>
+
+        </div>
+
+      </main>
+
+
+      <!-- QUESTION PALETTE -->
+      <aside class="palette-area">
+
+        <div class="card palette-card">
+
+          <h3>Questions</h3>
+
+          <div class="legend">
+            <span><i class="answered"></i> Answered</span>
+            <span><i class="review"></i> Review</span>
+            <span><i class="unanswered"></i> Not Answered</span>
+          </div>
+
+          <div id="questionPalette"></div>
+
+        </div>
+
+        <button class="submit-btn"
+                onclick="confirmSubmit()">
+          SUBMIT TEST
+        </button>
+
+      </aside>
+
+    </div>
+
+  </section>
+
+
+  <!-- RESULT SCREEN -->
+  <section id="resultScreen" class="screen hidden">
+
+    <div class="card result-card">
+
+      <h1>Test Completed</h1>
+
+      <div id="resultStatus"></div>
+
+      <div class="score">
+        <span id="score"></span>
+        <small>/ 50</small>
+      </div>
+
+      <div class="result-grid">
+
+        <div>
+          <b>Student</b>
+          <span id="resultName"></span>
+        </div>
+
+        <div>
+          <b>Roll No.</b>
+          <span id="resultRoll"></span>
+        </div>
+
+        <div>
+          <b>Correct</b>
+          <span id="correctCount"></span>
+        </div>
+
+        <div>
+          <b>Wrong</b>
+          <span id="wrongCount"></span>
+        </div>
+
+        <div>
+          <b>Unanswered</b>
+          <span id="unansweredCount"></span>
+        </div>
+
+        <div>
+          <b>Percentage</b>
+          <span id="percentage"></span>
+        </div>
+
+      </div>
+
+      <button class="primary-btn"
+              onclick="showReview()">
+        VIEW ANSWERS
+      </button>
+
+    </div>
+
+    <div id="reviewArea"></div>
+
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
