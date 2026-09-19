@@ -1,0 +1,604 @@
+[
+  {
+    "id": 1,
+    "level": 1,
+    "question": "In steady level flight, which relationship exists between lift and weight?",
+    "options": [
+      "Lift equals weight",
+      "Lift is always greater than weight",
+      "Lift is always less than weight",
+      "Lift is unrelated to weight"
+    ],
+    "correct": "Lift equals weight"
+  },
+  {
+    "id": 2,
+    "level": 1,
+    "question": "In which direction does lift normally act relative to the relative wind?",
+    "options": [
+      "Perpendicular to the relative wind",
+      "Parallel to the relative wind",
+      "Directly opposite the relative wind",
+      "Always vertically downward"
+    ],
+    "correct": "Perpendicular to the relative wind"
+  },
+  {
+    "id": 3,
+    "level": 1,
+    "question": "What generally happens to lift as angle of attack is increased before the critical angle is reached?",
+    "options": [
+      "Lift increases",
+      "Lift immediately becomes zero",
+      "Lift always decreases",
+      "Lift becomes independent of angle of attack"
+    ],
+    "correct": "Lift increases"
+  },
+  {
+    "id": 4,
+    "level": 1,
+    "question": "What happens when an aircraft exceeds its critical angle of attack?",
+    "options": [
+      "Lift decreases and a stall can occur",
+      "Lift increases indefinitely",
+      "Drag becomes zero",
+      "Weight decreases"
+    ],
+    "correct": "Lift decreases and a stall can occur"
+  },
+  {
+    "id": 5,
+    "level": 1,
+    "question": "In a power-off glide, what is normally adjusted to maintain a desired constant airspeed?",
+    "options": [
+      "Pitch attitude",
+      "Landing gear position only",
+      "Aircraft weight",
+      "Wing span"
+    ],
+    "correct": "Pitch attitude"
+  },
+  {
+    "id": 6,
+    "level": 1,
+    "question": "Best glide speed provides the greatest forward distance for a given altitude loss in still air.",
+    "options": [
+      "True",
+      "False",
+      "Only during a climb",
+      "Only during a turn"
+    ],
+    "correct": "True"
+  },
+  {
+    "id": 7,
+    "level": 1,
+    "question": "Best glide performance is associated with which lift-to-drag condition?",
+    "options": [
+      "Maximum L/D ratio",
+      "Minimum lift",
+      "Maximum parasite drag only",
+      "Zero drag"
+    ],
+    "correct": "Maximum L/D ratio"
+  },
+  {
+    "id": 8,
+    "level": 1,
+    "question": "What is induced drag generally associated with?",
+    "options": [
+      "Lift production",
+      "Weight reduction",
+      "Engine temperature only",
+      "Landing gear operation only"
+    ],
+    "correct": "Lift production"
+  },
+  {
+    "id": 9,
+    "level": 1,
+    "question": "What type of drag becomes increasingly important as aircraft speed increases?",
+    "options": [
+      "Parasite drag",
+      "Induced drag only",
+      "Weight drag",
+      "Lift drag"
+    ],
+    "correct": "Parasite drag"
+  },
+  {
+    "id": 10,
+    "level": 1,
+    "question": "What normally happens to induced drag when airspeed is reduced below best glide speed?",
+    "options": [
+      "It increases",
+      "It becomes zero",
+      "It always remains constant",
+      "It changes into weight"
+    ],
+    "correct": "It increases"
+  },
+  {
+    "id": 11,
+    "level": 1,
+    "question": "What is a flight envelope?",
+    "options": [
+      "The range of aircraft operating capabilities and limitations",
+      "The aircraft cabin pressure range only",
+      "The fuel tank capacity",
+      "The maximum passenger capacity"
+    ],
+    "correct": "The range of aircraft operating capabilities and limitations"
+  },
+  {
+    "id": 12,
+    "level": 1,
+    "question": "What does load factor commonly express?",
+    "options": [
+      "The ratio of aerodynamic load to aircraft weight, commonly expressed in G",
+      "Fuel flow only",
+      "Engine thrust only",
+      "Aircraft speed only"
+    ],
+    "correct": "The ratio of aerodynamic load to aircraft weight, commonly expressed in G"
+  },
+  {
+    "id": 13,
+    "level": 1,
+    "question": "What happens to stall speed as load factor increases?",
+    "options": [
+      "Stall speed increases",
+      "Stall speed always decreases",
+      "Stall speed becomes zero",
+      "Stall speed is unaffected"
+    ],
+    "correct": "Stall speed increases"
+  },
+  {
+    "id": 14,
+    "level": 1,
+    "question": "During a banked turn, the lift vector is tilted toward the inside of the turn.",
+    "options": [
+      "True",
+      "False",
+      "Only during a descent",
+      "Only with the engine stopped"
+    ],
+    "correct": "True"
+  },
+  {
+    "id": 15,
+    "level": 1,
+    "question": "What is one important effect of ice or frost contamination on a lifting surface?",
+    "options": [
+      "It can reduce lift generation and increase drag",
+      "It always increases lift",
+      "It eliminates stall risk",
+      "It reduces aircraft weight"
+    ],
+    "correct": "It can reduce lift generation and increase drag"
+  },
+
+  {
+    "id": 16,
+    "level": 2,
+    "question": "If lift becomes less than weight during otherwise steady flight, what tendency does the aircraft have?",
+    "options": [
+      "It tends to lose altitude",
+      "It must climb",
+      "It must accelerate indefinitely",
+      "It becomes weightless"
+    ],
+    "correct": "It tends to lose altitude"
+  },
+  {
+    "id": 17,
+    "level": 2,
+    "question": "If lift becomes greater than weight during flight, what tendency does the aircraft have?",
+    "options": [
+      "It tends to gain altitude",
+      "It must descend",
+      "It must stop immediately",
+      "Its weight doubles"
+    ],
+    "correct": "It tends to gain altitude"
+  },
+  {
+    "id": 18,
+    "level": 2,
+    "question": "Why does pulling back excessively while trying to extend a glide create a stall risk?",
+    "options": [
+      "It can reduce airspeed while increasing angle of attack toward the critical value",
+      "It eliminates lift",
+      "It removes aircraft weight",
+      "It makes parasite drag zero"
+    ],
+    "correct": "It can reduce airspeed while increasing angle of attack toward the critical value"
+  },
+  {
+    "id": 19,
+    "level": 2,
+    "question": "What happens to the rate of descent when an aircraft is flown significantly below its best glide speed?",
+    "options": [
+      "The rate of descent increases",
+      "The rate of descent becomes zero",
+      "The aircraft must climb",
+      "The aircraft becomes independent of drag"
+    ],
+    "correct": "The rate of descent increases"
+  },
+  {
+    "id": 20,
+    "level": 2,
+    "question": "What happens to the rate of descent when an aircraft is flown significantly above its best glide speed?",
+    "options": [
+      "The rate of descent increases",
+      "The aircraft cannot descend",
+      "Lift becomes zero",
+      "Weight decreases"
+    ],
+    "correct": "The rate of descent increases"
+  },
+  {
+    "id": 21,
+    "level": 2,
+    "question": "What does the polar curve commonly show in relation to glider performance?",
+    "options": [
+      "The relationship between sink rate and horizontal speed",
+      "Engine oil pressure and temperature",
+      "Fuel quantity and altitude",
+      "Cabin pressure and temperature"
+    ],
+    "correct": "The relationship between sink rate and horizontal speed"
+  },
+  {
+    "id": 22,
+    "level": 2,
+    "question": "Are minimum sink speed and best glide speed necessarily the same?",
+    "options": [
+      "No, they occur at different performance conditions",
+      "Yes, they are always identical",
+      "Only in helicopters",
+      "Only when the aircraft is stalled"
+    ],
+    "correct": "No, they occur at different performance conditions"
+  },
+  {
+    "id": 23,
+    "level": 2,
+    "question": "On a glide polar, what does the best glide line relate to?",
+    "options": [
+      "A tangent to the polar curve",
+      "A vertical line through the stall point",
+      "The aircraft centreline only",
+      "The zero-drag line"
+    ],
+    "correct": "A tangent to the polar curve"
+  },
+  {
+    "id": 24,
+    "level": 2,
+    "question": "Why must angle of attack generally be increased in a banked turn to maintain altitude?",
+    "options": [
+      "The lift vector is tilted and the vertical component of lift is reduced",
+      "Weight disappears in the turn",
+      "Drag becomes zero",
+      "The aircraft loses all inertia"
+    ],
+    "correct": "The lift vector is tilted and the vertical component of lift is reduced"
+  },
+  {
+    "id": 25,
+    "level": 2,
+    "question": "What is a potential consequence of excessive angle of attack during a turn?",
+    "options": [
+      "A stall",
+      "Zero drag",
+      "Automatic level flight",
+      "Reduced aircraft weight"
+    ],
+    "correct": "A stall"
+  },
+  {
+    "id": 26,
+    "level": 2,
+    "question": "Why does stall speed increase with increased load factor?",
+    "options": [
+      "More lift is required to support the increased aerodynamic load",
+      "The aircraft becomes lighter",
+      "The wing stops producing lift",
+      "The engine automatically reduces weight"
+    ],
+    "correct": "More lift is required to support the increased aerodynamic load"
+  },
+  {
+    "id": 27,
+    "level": 2,
+    "question": "What can happen if an aircraft is operated outside its approved flight envelope?",
+    "options": [
+      "Structural or performance limitations may be exceeded",
+      "The aircraft becomes automatically more efficient",
+      "The aircraft becomes stall-proof",
+      "Fuel consumption becomes zero"
+    ],
+    "correct": "Structural or performance limitations may be exceeded"
+  },
+  {
+    "id": 28,
+    "level": 2,
+    "question": "What is the main purpose of high-lift devices such as flaps?",
+    "options": [
+      "To increase lift capability at lower speeds",
+      "To eliminate all drag",
+      "To reduce aircraft weight",
+      "To eliminate the need for an airfoil"
+    ],
+    "correct": "To increase lift capability at lower speeds"
+  },
+  {
+    "id": 29,
+    "level": 2,
+    "question": "What is one aerodynamic penalty associated with extending flaps?",
+    "options": [
+      "Increased drag",
+      "Reduced aircraft weight",
+      "Zero lift",
+      "Removal of the boundary layer"
+    ],
+    "correct": "Increased drag"
+  },
+  {
+    "id": 30,
+    "level": 2,
+    "question": "What is the primary aerodynamic effect of surface contamination such as frost?",
+    "options": [
+      "It can disturb airflow and reduce aerodynamic efficiency",
+      "It always improves airflow",
+      "It increases maximum lift without penalty",
+      "It removes induced drag"
+    ],
+    "correct": "It can disturb airflow and reduce aerodynamic efficiency"
+  },
+  {
+    "id": 31,
+    "level": 2,
+    "question": "In a steady level flight condition, which four forces are normally considered?",
+    "options": [
+      "Lift, weight, thrust and drag",
+      "Pressure, temperature, density and humidity",
+      "Fuel, oil, hydraulic pressure and weight",
+      "Voltage, current, resistance and power"
+    ],
+    "correct": "Lift, weight, thrust and drag"
+  },
+  {
+    "id": 32,
+    "level": 2,
+    "question": "In steady level flight, what is the usual relationship between thrust and drag?",
+    "options": [
+      "Thrust balances drag",
+      "Thrust must always be zero",
+      "Drag balances weight",
+      "Thrust balances lift"
+    ],
+    "correct": "Thrust balances drag"
+  },
+  {
+    "id": 33,
+    "level": 2,
+    "question": "Which condition represents a stabilized steady flight condition?",
+    "options": [
+      "Flight parameters remain substantially constant with no continuing acceleration",
+      "The aircraft is continuously accelerating",
+      "The aircraft is continuously stalling",
+      "The aircraft has zero aerodynamic forces"
+    ],
+    "correct": "Flight parameters remain substantially constant with no continuing acceleration"
+  },
+  {
+    "id": 34,
+    "level": 2,
+    "question": "What happens to parasite drag as aircraft speed increases?",
+    "options": [
+      "It generally increases",
+      "It always decreases",
+      "It becomes zero",
+      "It becomes equal to weight"
+    ],
+    "correct": "It generally increases"
+  },
+  {
+    "id": 35,
+    "level": 2,
+    "question": "What happens to induced drag as aircraft speed increases in the normal subsonic range?",
+    "options": [
+      "It generally decreases",
+      "It always increases",
+      "It becomes zero immediately",
+      "It becomes equal to parasite drag at every speed"
+    ],
+    "correct": "It generally decreases"
+  },
+
+  {
+    "id": 36,
+    "level": 3,
+    "question": "An aircraft is in a glide and the pilot attempts to stretch the glide by continuously raising the nose. What is the most important aerodynamic risk?",
+    "options": [
+      "A reduction in airspeed and approach to the stall angle of attack",
+      "A complete elimination of induced drag",
+      "An automatic increase in glide distance",
+      "A reduction in aircraft weight"
+    ],
+    "correct": "A reduction in airspeed and approach to the stall angle of attack"
+  },
+  {
+    "id": 37,
+    "level": 3,
+    "question": "An aircraft enters a steeper bank while attempting to maintain altitude. Which combination is most appropriate?",
+    "options": [
+      "Increase angle of attack as required while maintaining appropriate airspeed",
+      "Reduce angle of attack to zero",
+      "Immediately reduce lift to zero",
+      "Ignore the change in load factor"
+    ],
+    "correct": "Increase angle of attack as required while maintaining appropriate airspeed"
+  },
+  {
+    "id": 38,
+    "level": 3,
+    "question": "Why can a steeply banked aircraft stall at an airspeed higher than its wings-level stall speed?",
+    "options": [
+      "The increased load factor increases the lift required and therefore increases stall speed",
+      "The aircraft becomes lighter during the turn",
+      "The wing produces unlimited lift",
+      "Parasite drag disappears"
+    ],
+    "correct": "The increased load factor increases the lift required and therefore increases stall speed"
+  },
+  {
+    "id": 39,
+    "level": 3,
+    "question": "An aircraft is flown faster than its best glide speed during a power-off glide. What aerodynamic change contributes to the increased descent rate?",
+    "options": [
+      "Parasite drag becomes increasingly significant",
+      "Induced drag becomes infinitely large",
+      "Weight decreases",
+      "Lift becomes completely zero"
+    ],
+    "correct": "Parasite drag becomes increasingly significant"
+  },
+  {
+    "id": 40,
+    "level": 3,
+    "question": "An aircraft is flown substantially below its best glide speed. Which aerodynamic effect is primarily responsible for the worsening glide performance?",
+    "options": [
+      "Increasing induced drag associated with the higher angle of attack",
+      "Increasing parasite drag only",
+      "Elimination of lift",
+      "Reduction in aircraft mass"
+    ],
+    "correct": "Increasing induced drag associated with the higher angle of attack"
+  },
+  {
+    "id": 41,
+    "level": 3,
+    "question": "Why is the best glide condition associated with the maximum lift-to-drag ratio?",
+    "options": [
+      "It provides the greatest aerodynamic efficiency and therefore the greatest horizontal distance for altitude lost",
+      "It gives the highest possible aircraft speed",
+      "It produces zero drag",
+      "It produces minimum lift"
+    ],
+    "correct": "It provides the greatest aerodynamic efficiency and therefore the greatest horizontal distance for altitude lost"
+  },
+  {
+    "id": 42,
+    "level": 3,
+    "question": "A pilot sees contamination on the leading edges of the wings. Why can the aircraft stall at a lower angle of attack or higher airspeed than expected?",
+    "options": [
+      "Contamination can disturb airflow and reduce the wing's lift capability",
+      "Contamination always increases the critical angle",
+      "Contamination eliminates drag",
+      "Contamination increases aircraft weight to zero"
+    ],
+    "correct": "Contamination can disturb airflow and reduce the wing's lift capability"
+  },
+  {
+    "id": 43,
+    "level": 3,
+    "question": "A pilot wants to maintain altitude while increasing bank angle. What happens to the required aerodynamic lift?",
+    "options": [
+      "The required total lift increases",
+      "The required lift becomes zero",
+      "The required lift always decreases",
+      "Lift becomes unrelated to bank angle"
+    ],
+    "correct": "The required total lift increases"
+  },
+  {
+    "id": 44,
+    "level": 3,
+    "question": "Why does increasing bank angle increase structural and aerodynamic loading during a level turn?",
+    "options": [
+      "The aircraft experiences an increased load factor",
+      "Weight disappears",
+      "Drag becomes zero",
+      "The aircraft stops producing lift"
+    ],
+    "correct": "The aircraft experiences an increased load factor"
+  },
+  {
+    "id": 45,
+    "level": 3,
+    "question": "A pilot maintains a constant airspeed in a power-off glide by adjusting pitch. What is being controlled most directly?",
+    "options": [
+      "Angle of attack and therefore the aerodynamic condition associated with the selected airspeed",
+      "Aircraft weight",
+      "Wing span",
+      "Fuel quantity"
+    ],
+    "correct": "Angle of attack and therefore the aerodynamic condition associated with the selected airspeed"
+  },
+  {
+    "id": 46,
+    "level": 3,
+    "question": "On a glide polar, what does the point associated with minimum sink represent?",
+    "options": [
+      "The condition producing the lowest rate of altitude loss",
+      "The maximum aircraft speed",
+      "The highest rate of descent",
+      "The stall condition in every case"
+    ],
+    "correct": "The condition producing the lowest rate of altitude loss"
+  },
+  {
+    "id": 47,
+    "level": 3,
+    "question": "Why can minimum sink speed differ from best glide speed?",
+    "options": [
+      "Minimum sink and maximum horizontal distance per altitude lost are different performance objectives",
+      "They are always identical by definition",
+      "Best glide requires zero lift",
+      "Minimum sink requires zero drag"
+    ],
+    "correct": "Minimum sink and maximum horizontal distance per altitude lost are different performance objectives"
+  },
+  {
+    "id": 48,
+    "level": 3,
+    "question": "An aircraft operates beyond a structural limitation shown by its flight envelope. What is the principal concern?",
+    "options": [
+      "Structural damage or failure may occur",
+      "The aircraft automatically becomes more efficient",
+      "The aircraft cannot experience any aerodynamic load",
+      "The aircraft becomes stall-proof"
+    ],
+    "correct": "Structural damage or failure may occur"
+  },
+  {
+    "id": 49,
+    "level": 3,
+    "question": "During a level turn, the pilot increases angle of attack excessively while trying to maintain altitude. What combination of effects can result?",
+    "options": [
+      "Increased load factor, increased stall speed requirement and possible stall",
+      "Reduced load factor and zero drag",
+      "Reduced weight and increased glide ratio",
+      "Zero lift and zero weight"
+    ],
+    "correct": "Increased load factor, increased stall speed requirement and possible stall"
+  },
+  {
+    "id": 50,
+    "level": 3,
+    "question": "Which statement best describes the relationship between aircraft performance and the flight envelope?",
+    "options": [
+      "The flight envelope defines operating regions within which the aircraft is designed to operate safely",
+      "The flight envelope is only a fuel measurement",
+      "The flight envelope removes all structural limitations",
+      "The flight envelope applies only when the aircraft is parked"
+    ],
+    "correct": "The flight envelope defines operating regions within which the aircraft is designed to operate safely"
+  }
+]
