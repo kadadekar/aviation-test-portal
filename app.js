@@ -1,5 +1,4 @@
-const API_URL =
-  "https://aviation-test-api.govapi838.workers.dev";
+const API_URL = "https://aviation-test-api.govapi838.workers.dev";
 
 const QUESTIONS_API = `${API_URL}/api/questions`;
 const SUBMIT_API = `${API_URL}/api/submit`;
@@ -11,55 +10,89 @@ let reviewQuestions = new Set();
 
 let examStarted = false;
 let examSubmitted = false;
-
-const EXAM_MINUTES = 50;
-let timeLeft = EXAM_MINUTES * 60;
 let timerInterval = null;
 
+let timeLeft = 50 * 60;
 
-// ===============================
+let studentData = {
+  name: "",
+  rollNo: "",
+  batch: "",
+  email: ""
+};
+
+let finalResult = null;
+
+
+// ======================================================
 // START EXAM
-// ===============================
+// ======================================================
 
 async function startExam() {
+
   if (examStarted) return;
 
-  const name = document.getElementById("studentName").value.trim();
-  const rollNo = document.getElementById("rollNo").value.trim();
-  const batch = document.getElementById("batch").value.trim();
-  const email = document.getElementById("email").value.trim();
+  studentData.name =
+    document.getElementById("studentName").value.trim();
 
-  if (!name || !rollNo || !batch || !email) {
+  studentData.rollNo =
+    document.getElementById("rollNo").value.trim();
+
+  studentData.batch =
+    document.getElementById("batch").value.trim();
+
+  studentData.email =
+    document.getElementById("email").value.trim();
+
+
+  if (
+    !studentData.name ||
+    !studentData.rollNo ||
+    !studentData.batch ||
+    !studentData.email
+  ) {
     alert("Please fill all student details.");
     return;
   }
 
-  const startButton = document.querySelector("#startScreen button");
+
+  const startButton =
+    document.querySelector("#startScreen button");
+
 
   if (startButton) {
     startButton.disabled = true;
-    startButton.textContent = "Loading Test...";
+    startButton.textContent = "LOADING TEST...";
   }
 
+
   try {
-    const response = await fetch(QUESTIONS_API, {
-      method: "GET",
-      cache: "no-store"
-    });
+
+    const response = await fetch(
+      QUESTIONS_API + "?t=" + Date.now(),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
 
     if (!response.ok) {
-      throw new Error("Unable to load questions.");
+      throw new Error("Question API error");
     }
 
+
     const data = await response.json();
+
 
     if (
       data.status !== "success" ||
       !Array.isArray(data.questions) ||
       data.questions.length !== 50
     ) {
-      throw new Error("Question data is invalid.");
+      throw new Error("Invalid question data");
     }
+
 
     questions = data.questions;
 
@@ -68,19 +101,34 @@ async function startExam() {
 
     currentQuestion = 0;
 
-    timeLeft = (data.timeMinutes || EXAM_MINUTES) * 60;
+    timeLeft =
+      (data.timeMinutes || 50) * 60;
+
 
     examStarted = true;
     examSubmitted = false;
 
-    document.getElementById("startScreen").style.display = "none";
-    document.getElementById("examScreen").style.display = "block";
 
-    startTimer();
+    // Hide start screen
+    document
+      .getElementById("startScreen")
+      .classList.add("hidden");
+
+
+    // Show exam screen
+    document
+      .getElementById("examScreen")
+      .classList.remove("hidden");
+
+
     renderQuestion();
     renderPalette();
 
+    startTimer();
+
+
   } catch (error) {
+
     console.error(error);
 
     alert(
@@ -88,22 +136,27 @@ async function startExam() {
       "Please check your internet connection and try again."
     );
 
+
     if (startButton) {
       startButton.disabled = false;
-      startButton.textContent = "Start Test";
+      startButton.textContent = "START EXAM";
     }
+
   }
+
 }
 
 
-// ===============================
+// ======================================================
 // TIMER
-// ===============================
+// ======================================================
 
 function startTimer() {
+
   clearInterval(timerInterval);
 
-  updateTimerDisplay();
+  updateTimer();
+
 
   timerInterval = setInterval(() => {
 
@@ -112,139 +165,198 @@ function startTimer() {
       return;
     }
 
+
     timeLeft--;
 
-    updateTimerDisplay();
+    updateTimer();
+
 
     if (timeLeft <= 0) {
+
       clearInterval(timerInterval);
 
-      alert("Time is over. Your test will be submitted automatically.");
+      alert(
+        "Time is over.\n\nYour test will be submitted automatically."
+      );
 
       submitTest(true);
+
     }
 
   }, 1000);
+
 }
 
 
-function updateTimerDisplay() {
+function updateTimer() {
 
-  const timer = document.getElementById("timer");
+  const timer =
+    document.getElementById("timer");
 
   if (!timer) return;
 
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+
+  const minutes =
+    Math.floor(timeLeft / 60);
+
+  const seconds =
+    timeLeft % 60;
+
 
   timer.textContent =
-    `${String(minutes).padStart(2, "0")}:` +
-    `${String(seconds).padStart(2, "0")}`;
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(seconds).padStart(2, "0");
+
 
   if (timeLeft <= 300) {
-    timer.classList.add("warning");
+    timer.style.color = "red";
   } else {
-    timer.classList.remove("warning");
+    timer.style.color = "";
   }
+
 }
 
 
-// ===============================
-// RENDER QUESTION
-// ===============================
+// ======================================================
+// DISPLAY QUESTION
+// ======================================================
 
 function renderQuestion() {
 
   if (!questions.length) return;
 
-  const q = questions[currentQuestion];
 
+  const q =
+    questions[currentQuestion];
+
+
+  // Question number
   const questionNumber =
     document.getElementById("questionNumber");
 
-  const level =
-    document.getElementById("level");
+  if (questionNumber) {
 
+    questionNumber.textContent =
+      `Question ${currentQuestion + 1} of ${questions.length}`;
+
+  }
+
+
+  // Level
+  const levelBadge =
+    document.getElementById("levelBadge");
+
+  if (levelBadge) {
+
+    levelBadge.textContent =
+      `LEVEL ${q.level}`;
+
+  }
+
+
+  // Question text
   const questionText =
-    document.getElementById("question");
+    document.getElementById("questionText");
 
+  if (questionText) {
+
+    questionText.textContent =
+      q.question;
+
+  }
+
+
+  // Options
   const optionsContainer =
     document.getElementById("options");
 
-  if (questionNumber) {
-    questionNumber.textContent =
-      `Question ${currentQuestion + 1} of ${questions.length}`;
-  }
-
-  if (level) {
-    level.textContent = `Level ${q.level}`;
-  }
-
-  if (questionText) {
-    questionText.textContent = q.question;
-  }
 
   if (optionsContainer) {
 
     optionsContainer.innerHTML = "";
 
+
     q.options.forEach((option, index) => {
 
-      const optionButton =
+      const button =
         document.createElement("button");
 
-      optionButton.type = "button";
 
-      optionButton.className = "option";
+      button.type = "button";
+
+      button.className = "option";
+
 
       if (answers[q.id] === option) {
-        optionButton.classList.add("selected");
+        button.classList.add("selected");
       }
 
-      optionButton.innerHTML =
-        `<span class="option-letter">${String.fromCharCode(65 + index)}</span>` +
-        `<span>${escapeHtml(option)}</span>`;
 
-      optionButton.addEventListener("click", () => {
+      const letter =
+        String.fromCharCode(65 + index);
+
+
+      button.innerHTML =
+        `<span class="option-letter">${letter}</span>
+         <span>${escapeHtml(option)}</span>`;
+
+
+      button.onclick = function () {
 
         answers[q.id] = option;
 
         renderQuestion();
-        renderPalette();
+        updatePalette();
 
-      });
+      };
 
-      optionsContainer.appendChild(optionButton);
+
+      optionsContainer.appendChild(button);
 
     });
+
   }
 
-  updateNavigationButtons();
+
+  updateNavigation();
+
   updatePalette();
+
 }
 
 
-// ===============================
-// NAVIGATION
-// ===============================
+// ======================================================
+// NEXT
+// ======================================================
 
 function nextQuestion() {
 
-  if (currentQuestion < questions.length - 1) {
+  if (!questions.length) return;
+
+
+  if (
+    currentQuestion <
+    questions.length - 1
+  ) {
 
     currentQuestion++;
 
     renderQuestion();
 
-  } else {
-
-    alert("You are on the last question.");
-
   }
+
 }
 
 
+// ======================================================
+// PREVIOUS
+// ======================================================
+
 function previousQuestion() {
+
+  if (!questions.length) return;
+
 
   if (currentQuestion > 0) {
 
@@ -257,25 +369,41 @@ function previousQuestion() {
 }
 
 
+// ======================================================
+// CLEAR ANSWER
+// ======================================================
+
 function clearAnswer() {
 
-  const q = questions[currentQuestion];
+  if (!questions.length) return;
 
-  if (!q) return;
+
+  const q =
+    questions[currentQuestion];
+
 
   delete answers[q.id];
 
+
   renderQuestion();
-  renderPalette();
+
+  updatePalette();
 
 }
 
 
+// ======================================================
+// MARK FOR REVIEW
+// ======================================================
+
 function toggleReview() {
 
-  const q = questions[currentQuestion];
+  if (!questions.length) return;
 
-  if (!q) return;
+
+  const q =
+    questions[currentQuestion];
+
 
   if (reviewQuestions.has(q.id)) {
 
@@ -287,46 +415,57 @@ function toggleReview() {
 
   }
 
+
   updatePalette();
 
 }
 
 
-// ===============================
-// PALETTE
-// ===============================
+// ======================================================
+// QUESTION PALETTE
+// ======================================================
 
 function renderPalette() {
 
   const palette =
     document.getElementById("questionPalette");
 
+
   if (!palette) return;
 
+
   palette.innerHTML = "";
+
 
   questions.forEach((q, index) => {
 
     const button =
       document.createElement("button");
 
+
     button.type = "button";
 
-    button.textContent = index + 1;
+    button.textContent =
+      index + 1;
 
-    button.className = "palette-button";
 
-    button.addEventListener("click", () => {
+    button.className =
+      "palette-button";
+
+
+    button.onclick = function () {
 
       currentQuestion = index;
 
       renderQuestion();
 
-    });
+    };
+
 
     palette.appendChild(button);
 
   });
+
 
   updatePalette();
 
@@ -336,11 +475,16 @@ function renderPalette() {
 function updatePalette() {
 
   const buttons =
-    document.querySelectorAll(".palette-button");
+    document.querySelectorAll(
+      "#questionPalette button"
+    );
+
 
   buttons.forEach((button, index) => {
 
-    const q = questions[index];
+    const q =
+      questions[index];
+
 
     button.classList.remove(
       "current",
@@ -348,16 +492,31 @@ function updatePalette() {
       "reviewed"
     );
 
+
     if (index === currentQuestion) {
+
       button.classList.add("current");
+
     }
 
-    if (q && answers[q.id]) {
+
+    if (
+      q &&
+      answers[q.id]
+    ) {
+
       button.classList.add("answered");
+
     }
 
-    if (q && reviewQuestions.has(q.id)) {
+
+    if (
+      q &&
+      reviewQuestions.has(q.id)
+    ) {
+
       button.classList.add("reviewed");
+
     }
 
   });
@@ -365,25 +524,31 @@ function updatePalette() {
 }
 
 
-// ===============================
+// ======================================================
 // NAVIGATION BUTTONS
-// ===============================
+// ======================================================
 
-function updateNavigationButtons() {
+function updateNavigation() {
 
-  const previous =
+  const previousButton =
     document.getElementById("previousBtn");
 
-  const next =
+
+  const nextButton =
     document.getElementById("nextBtn");
 
-  if (previous) {
-    previous.disabled = currentQuestion === 0;
+
+  if (previousButton) {
+
+    previousButton.disabled =
+      currentQuestion === 0;
+
   }
 
-  if (next) {
 
-    next.disabled =
+  if (nextButton) {
+
+    nextButton.disabled =
       currentQuestion === questions.length - 1;
 
   }
@@ -391,81 +556,107 @@ function updateNavigationButtons() {
 }
 
 
-// ===============================
+// ======================================================
+// CONFIRM SUBMIT
+// ======================================================
+
+function confirmSubmit() {
+
+  if (examSubmitted) return;
+
+
+  const unanswered =
+    questions.filter(
+      q => !answers[q.id]
+    ).length;
+
+
+  let message;
+
+
+  if (unanswered > 0) {
+
+    message =
+      `You have ${unanswered} unanswered question(s).\n\n` +
+      "Are you sure you want to submit the test?";
+
+  } else {
+
+    message =
+      "All questions are answered.\n\n" +
+      "Are you sure you want to submit the test?";
+
+  }
+
+
+  if (confirm(message)) {
+
+    submitTest(false);
+
+  }
+
+}
+
+
+// ======================================================
 // SUBMIT TEST
-// ===============================
+// ======================================================
 
 async function submitTest(autoSubmit = false) {
 
   if (examSubmitted) return;
 
-  if (!autoSubmit) {
-
-    const unanswered =
-      questions.filter(q => !answers[q.id]).length;
-
-    if (unanswered > 0) {
-
-      const confirmSubmit =
-        confirm(
-          `${unanswered} question(s) are unanswered.\n\n` +
-          "Do you want to submit the test?"
-        );
-
-      if (!confirmSubmit) {
-        return;
-      }
-
-    } else {
-
-      const confirmSubmit =
-        confirm(
-          "Are you sure you want to submit the test?"
-        );
-
-      if (!confirmSubmit) {
-        return;
-      }
-
-    }
-
-  }
 
   examSubmitted = true;
 
   clearInterval(timerInterval);
 
+
   try {
 
     const response =
-      await fetch(SUBMIT_API, {
+      await fetch(
+        SUBMIT_API,
+        {
+          method: "POST",
 
-        method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+          body: JSON.stringify({
+            answers: answers
+          })
+        }
+      );
 
-        body: JSON.stringify({
-
-          answers: answers
-
-        })
-
-      });
 
     if (!response.ok) {
-      throw new Error("Submission failed.");
+
+      throw new Error(
+        "Submission failed"
+      );
+
     }
+
 
     const result =
       await response.json();
 
+
     if (result.status !== "success") {
-      throw new Error("Invalid result.");
+
+      throw new Error(
+        "Invalid result"
+      );
+
     }
 
+
+    finalResult = result;
+
     showResult(result);
+
 
   } catch (error) {
 
@@ -483,64 +674,100 @@ async function submitTest(autoSubmit = false) {
 }
 
 
-// ===============================
+// ======================================================
 // SHOW RESULT
-// ===============================
+// ======================================================
 
 function showResult(result) {
 
-  const examScreen =
-    document.getElementById("examScreen");
+  document
+    .getElementById("examScreen")
+    .classList.add("hidden");
 
-  const resultScreen =
-    document.getElementById("resultScreen");
 
-  if (examScreen) {
-    examScreen.style.display = "none";
-  }
+  document
+    .getElementById("resultScreen")
+    .classList.remove("hidden");
 
-  if (resultScreen) {
-    resultScreen.style.display = "block";
-  }
 
+  // Result status
   const resultStatus =
     document.getElementById("resultStatus");
 
-  const score =
-    document.getElementById("score");
-
-  const correct =
-    document.getElementById("correct");
-
-  const wrong =
-    document.getElementById("wrong");
-
-  const unanswered =
-    document.getElementById("unanswered");
-
-  const percentage =
-    document.getElementById("percentage");
 
   if (resultStatus) {
-    resultStatus.textContent = result.result;
+
+    resultStatus.textContent =
+      result.result;
+
     resultStatus.className =
       result.result === "PASS"
         ? "pass"
         : "fail";
+
   }
+
+
+  // Score
+  const score =
+    document.getElementById("score");
+
 
   if (score) {
+
     score.textContent =
-      `${result.score} / ${result.total}`;
+      result.score;
+
   }
 
-  if (correct) {
-    correct.textContent = result.score;
+
+  // Student
+  const resultName =
+    document.getElementById("resultName");
+
+
+  if (resultName) {
+
+    resultName.textContent =
+      studentData.name;
+
   }
 
-  if (wrong) {
 
-    wrong.textContent =
+  // Roll number
+  const resultRoll =
+    document.getElementById("resultRoll");
+
+
+  if (resultRoll) {
+
+    resultRoll.textContent =
+      studentData.rollNo;
+
+  }
+
+
+  // Correct
+  const correctCount =
+    document.getElementById("correctCount");
+
+
+  if (correctCount) {
+
+    correctCount.textContent =
+      result.score;
+
+  }
+
+
+  // Wrong
+  const wrongCount =
+    document.getElementById("wrongCount");
+
+
+  if (wrongCount) {
+
+    wrongCount.textContent =
       result.review.filter(
         item =>
           !item.correct &&
@@ -549,110 +776,210 @@ function showResult(result) {
 
   }
 
-  if (unanswered) {
 
-    unanswered.textContent =
+  // Unanswered
+  const unansweredCount =
+    document.getElementById("unansweredCount");
+
+
+  if (unansweredCount) {
+
+    unansweredCount.textContent =
       result.review.filter(
-        item => item.yourAnswer === null
+        item =>
+          item.yourAnswer === null
       ).length;
 
   }
 
+
+  // Percentage
+  const percentage =
+    document.getElementById("percentage");
+
+
   if (percentage) {
+
     percentage.textContent =
       `${result.percentage}%`;
+
   }
 
-  window.finalResult = result;
+}
+
+
+// ======================================================
+// SHOW ANSWERS
+// ======================================================
+
+function showReview() {
+
+  if (!finalResult) return;
+
+
+  const reviewArea =
+    document.getElementById("reviewArea");
+
+
+  if (!reviewArea) return;
+
+
+  reviewArea.innerHTML = "";
+
+
+  finalResult.review.forEach(
+    (item, index) => {
+
+      const box =
+        document.createElement("div");
+
+
+      box.className =
+        "answer-review-item";
+
+
+      const yourAnswer =
+        item.yourAnswer === null
+          ? "Not Answered"
+          : item.yourAnswer;
+
+
+      box.innerHTML = `
+
+        <div class="card">
+
+          <h3>
+            Question ${index + 1}
+          </h3>
+
+          <p>
+            <strong>
+              ${escapeHtml(item.question)}
+            </strong>
+          </p>
+
+          <p>
+            <b>Your Answer:</b>
+            ${escapeHtml(yourAnswer)}
+          </p>
+
+          <p>
+            <b>Correct Answer:</b>
+            ${escapeHtml(item.correctAnswer)}
+          </p>
+
+          <p>
+            ${escapeHtml(item.reason)}
+          </p>
+
+        </div>
+
+      `;
+
+
+      reviewArea.appendChild(box);
+
+    }
+  );
 
 }
 
 
-// ===============================
-// VIEW ANSWERS
-// ===============================
+// ======================================================
+// ESCAPE HTML
+// ======================================================
 
-function viewAnswers() {
+function escapeHtml(value) {
 
-  if (!window.finalResult) return;
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return "";
+  }
 
-  const result =
-    window.finalResult;
 
-  const reviewContainer =
-    document.getElementById("answerReview");
+  return String(value)
 
-  if (!reviewContainer) return;
+    .replaceAll("&", "&amp;")
 
-  reviewContainer.innerHTML = "";
+    .replaceAll("<", "&lt;")
 
-  result.review.forEach((item, index) => {
+    .replaceAll(">", "&gt;")
 
-    const div =
-      document.createElement("div");
+    .replaceAll('"', "&quot;")
 
-    div.className = "answer-review-item";
-
-    const yourAnswer =
-      item.yourAnswer === null
-        ? "Not answered"
-        : item.yourAnswer;
-
-    div.innerHTML = `
-      <h3>Question ${index + 1}</h3>
-      <p><strong>${escapeHtml(item.question)}</strong></p>
-      <p>Your answer: ${escapeHtml(yourAnswer)}</p>
-      <p>Correct answer: ${escapeHtml(item.correctAnswer)}</p>
-      <p>${escapeHtml(item.reason)}</p>
-    `;
-
-    reviewContainer.appendChild(div);
-
-  });
+    .replaceAll("'", "&#039;");
 
 }
 
 
-// ===============================
-// SECURITY / BASIC ANTI-CHEAT
-// ===============================
+// ======================================================
+// BASIC ANTI-CHEAT
+// ======================================================
 
 document.addEventListener(
   "contextmenu",
-  event => event.preventDefault()
+  function(event) {
+
+    event.preventDefault();
+
+  }
 );
+
 
 document.addEventListener(
   "copy",
-  event => event.preventDefault()
+  function(event) {
+
+    event.preventDefault();
+
+  }
 );
+
 
 document.addEventListener(
   "cut",
-  event => event.preventDefault()
+  function(event) {
+
+    event.preventDefault();
+
+  }
 );
+
 
 document.addEventListener(
   "paste",
-  event => event.preventDefault()
+  function(event) {
+
+    event.preventDefault();
+
+  }
 );
+
 
 document.addEventListener(
   "keydown",
-  event => {
+  function(event) {
 
     if (
       event.ctrlKey ||
       event.metaKey
     ) {
 
-      const blockedKeys =
-        ["c", "v", "x", "u", "s", "p"];
+      const key =
+        event.key.toLowerCase();
+
 
       if (
-        blockedKeys.includes(
-          event.key.toLowerCase()
-        )
+        [
+          "c",
+          "v",
+          "x",
+          "u",
+          "s",
+          "p"
+        ].includes(key)
       ) {
 
         event.preventDefault();
@@ -661,16 +988,20 @@ document.addEventListener(
 
     }
 
+
     if (event.key === "F12") {
 
       event.preventDefault();
 
     }
 
+
     if (
       event.ctrlKey &&
       event.shiftKey &&
-      ["I", "J", "C"].includes(event.key)
+      ["i", "j", "c"].includes(
+        event.key.toLowerCase()
+      )
     ) {
 
       event.preventDefault();
@@ -681,13 +1012,13 @@ document.addEventListener(
 );
 
 
-// ===============================
+// ======================================================
 // TAB SWITCH DETECTION
-// ===============================
+// ======================================================
 
 document.addEventListener(
   "visibilitychange",
-  () => {
+  function() {
 
     if (
       document.hidden &&
@@ -699,132 +1030,6 @@ document.addEventListener(
         "Student left the exam tab."
       );
 
-    }
-
-  }
-);
-
-
-// ===============================
-// FULLSCREEN DETECTION
-// ===============================
-
-document.addEventListener(
-  "fullscreenchange",
-  () => {
-
-    if (
-      examStarted &&
-      !examSubmitted &&
-      !document.fullscreenElement
-    ) {
-
-      console.log(
-        "Student exited fullscreen."
-      );
-
-    }
-
-  }
-);
-
-
-// ===============================
-// HTML ESCAPE
-// ===============================
-
-function escapeHtml(value) {
-
-  if (value === null || value === undefined) {
-    return "";
-  }
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-// ===============================
-// BUTTON CONNECTIONS
-// ===============================
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
-    const startButton =
-      document.getElementById("startTestBtn");
-
-    const nextButton =
-      document.getElementById("nextBtn");
-
-    const previousButton =
-      document.getElementById("previousBtn");
-
-    const clearButton =
-      document.getElementById("clearBtn");
-
-    const reviewButton =
-      document.getElementById("reviewBtn");
-
-    const submitButton =
-      document.getElementById("submitBtn");
-
-    const viewAnswersButton =
-      document.getElementById("viewAnswersBtn");
-
-    if (startButton) {
-      startButton.addEventListener(
-        "click",
-        startExam
-      );
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener(
-        "click",
-        nextQuestion
-      );
-    }
-
-    if (previousButton) {
-      previousButton.addEventListener(
-        "click",
-        previousQuestion
-      );
-    }
-
-    if (clearButton) {
-      clearButton.addEventListener(
-        "click",
-        clearAnswer
-      );
-    }
-
-    if (reviewButton) {
-      reviewButton.addEventListener(
-        "click",
-        toggleReview
-      );
-    }
-
-    if (submitButton) {
-      submitButton.addEventListener(
-        "click",
-        () => submitTest(false)
-      );
-    }
-
-    if (viewAnswersButton) {
-      viewAnswersButton.addEventListener(
-        "click",
-        viewAnswers
-      );
     }
 
   }
