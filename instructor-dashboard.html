@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Aviation Test Portal - Instructor Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #0b3d91;
+      color: white;
+      padding: 18px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 25px auto;
+      padding: 0 15px;
+    }
+
+    .welcome {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #0b3d91;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #0b3d91;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #082f70;
+    }
+
+    .logout {
+      background: #b00020;
+      max-width: 180px;
+    }
+
+    .logout:hover {
+      background: #8a0019;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Aviation Test Portal</h1>
+    <p>Instructor Dashboard</p>
+  </header>
+
+  <div class="container">
+
+    <div class="welcome">
+      <h2>Welcome, <span id="instructorName">Instructor</span></h2>
+
+      <p>
+        Username:
+        <strong id="instructorUsername">-</strong>
+      </p>
+
+      <button class="logout" onclick="logout()">
+        Logout
+      </button>
+    </div>
+
+
+    <div class="cards">
+
+      <div class="card">
+        <h2>Students</h2>
+        <p>Manage student accounts and batches.</p>
+
+        <button onclick="comingSoon('Student Management')">
+          Manage Students
+        </button>
+      </div>
+
+
+      <div class="card">
+        <h2>Question Bank</h2>
+        <p>Add, edit and manage examination questions.</p>
+
+        <button onclick="comingSoon('Question Bank')">
+          Question Bank
+        </button>
+      </div>
+
+
+      <div class="card">
+        <h2>Exams</h2>
+        <p>Create and manage examination sets.</p>
+
+        <button onclick="comingSoon('Exam Management')">
+          Manage Exams
+        </button>
+      </div>
+
+
+      <div class="card">
+        <h2>Assignments</h2>
+        <p>Assign examinations to students.</p>
+
+        <button onclick="comingSoon('Exam Assignments')">
+          Assign Exams
+        </button>
+      </div>
+
+
+      <div class="card">
+        <h2>Results</h2>
+        <p>View student examination results.</p>
+
+        <button onclick="comingSoon('Results')">
+          View Results
+        </button>
+      </div>
+
+
+      <div class="card">
+        <h2>Security</h2>
+        <p>Review exam violations and strict-mode activity.</p>
+
+        <button onclick="comingSoon('Security Reports')">
+          Security Reports
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const API_URL =
+      "https://aviation-test-api.govapi838.workers.dev";
+
+
+    async function checkLogin() {
+
+      const token =
+        localStorage.getItem("instructorToken");
+
+      if (!token) {
+
+        window.location.href =
+          "instructor.html";
+
+        return;
+      }
+
+
+      try {
+
+        const response =
+          await fetch(
+            API_URL + "/api/me",
+            {
+              method: "GET",
+
+              headers: {
+                "Authorization":
+                  "Bearer " + token
+              }
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          data.status !== "success"
+        ) {
+
+          localStorage.removeItem(
+            "instructorToken"
+          );
+
+          localStorage.removeItem(
+            "instructorUser"
+          );
+
+          window.location.href =
+            "instructor.html";
+
+          return;
+        }
+
+
+        document.getElementById(
+          "instructorName"
+        ).textContent =
+          data.user.fullName || "Instructor";
+
+
+        document.getElementById(
+          "instructorUsername"
+        ).textContent =
+          data.user.username || "-";
+
+      } catch (error) {
+
+        console.error(
+          "Login verification error:",
+          error
+        );
+
+        alert(
+          "Unable to verify your login session."
+        );
+      }
+    }
+
+
+    function logout() {
+
+      localStorage.removeItem(
+        "instructorToken"
+      );
+
+      localStorage.removeItem(
+        "instructorUser"
+      );
+
+      window.location.href =
+        "instructor.html";
+    }
+
+
+    function comingSoon(name) {
+
+      alert(
+        name +
+        " will be added in the next step."
+      );
+    }
+
+
+    checkLogin();
+
+  </script>
+
+</body>
+</html>
