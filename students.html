@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,10 +85,6 @@
       font-size: 15px;
     }
 
-    .full-width {
-      grid-column: 1 / -1;
-    }
-
     .add-btn {
       margin-top: 20px;
       background: #0b1f33;
@@ -146,10 +143,6 @@
         grid-template-columns: 1fr;
       }
 
-      .full-width {
-        grid-column: auto;
-      }
-
       .header {
         flex-direction: column;
         gap: 12px;
@@ -162,12 +155,15 @@
 <body>
 
   <div class="header">
+
     <h1>Aviation Test Portal — Student Management</h1>
 
     <button class="back-btn" onclick="goDashboard()">
       ← Dashboard
     </button>
+
   </div>
+
 
   <div class="container">
 
@@ -183,6 +179,7 @@
 
           <div class="form-group">
             <label>Username *</label>
+
             <input
               type="text"
               id="username"
@@ -191,58 +188,83 @@
             >
           </div>
 
+
           <div class="form-group">
+
             <label>Password *</label>
+
             <input
               type="password"
               id="password"
               required
               placeholder="Student password"
             >
+
           </div>
 
+
           <div class="form-group">
+
             <label>Full Name *</label>
+
             <input
               type="text"
               id="fullName"
               required
               placeholder="Student full name"
             >
+
           </div>
 
+
           <div class="form-group">
+
             <label>Roll No.</label>
+
             <input
               type="text"
               id="rollNo"
               placeholder="Roll number"
             >
+
           </div>
 
+
           <div class="form-group">
+
             <label>Batch</label>
+
             <input
               type="text"
               id="batch"
               placeholder="Batch"
             >
+
           </div>
 
+
           <div class="form-group">
+
             <label>Email</label>
+
             <input
               type="email"
               id="email"
               placeholder="Student email"
             >
+
           </div>
 
         </div>
 
-        <button type="submit" class="add-btn">
+
+        <button
+          type="submit"
+          class="add-btn"
+        >
           Add Student
         </button>
+
 
         <div id="message"></div>
 
@@ -262,6 +284,7 @@
         <table>
 
           <thead>
+
             <tr>
               <th>Username</th>
               <th>Name</th>
@@ -270,14 +293,18 @@
               <th>Email</th>
               <th>Status</th>
             </tr>
+
           </thead>
+
 
           <tbody id="studentTableBody">
 
             <tr>
+
               <td colspan="6">
                 Loading students...
               </td>
+
             </tr>
 
           </tbody>
@@ -304,7 +331,7 @@ const API_URL =
 async function checkLogin() {
 
   const token =
-    localStorage.getItem("authToken");
+    localStorage.getItem("instructorToken");
 
   if (!token) {
 
@@ -314,37 +341,50 @@ async function checkLogin() {
     return false;
   }
 
+
   try {
 
     const response =
-      await fetch(API_URL + "/api/me", {
-
-        headers: {
-          "Authorization":
-            "Bearer " + token
+      await fetch(
+        API_URL + "/api/me",
+        {
+          headers: {
+            "Authorization":
+              "Bearer " + token
+          }
         }
+      );
 
-      });
 
     const data =
       await response.json();
+
 
     if (
       !response.ok ||
       data.status !== "success"
     ) {
 
-      localStorage.removeItem("authToken");
+      localStorage.removeItem(
+        "instructorToken"
+      );
+
+      localStorage.removeItem(
+        "instructorUser"
+      );
 
       window.location.href =
         "instructor.html";
 
       return false;
     }
+
 
     if (data.user.role !== "instructor") {
 
-      alert("Instructor access required.");
+      alert(
+        "Instructor access required."
+      );
 
       window.location.href =
         "instructor.html";
@@ -352,11 +392,15 @@ async function checkLogin() {
       return false;
     }
 
+
     return true;
+
 
   } catch (error) {
 
-    alert("Unable to connect to server.");
+    alert(
+      "Unable to connect to server."
+    );
 
     return false;
   }
@@ -370,29 +414,34 @@ async function checkLogin() {
 async function loadStudents() {
 
   const token =
-    localStorage.getItem("authToken");
+    localStorage.getItem("instructorToken");
+
 
   try {
 
     const response =
-      await fetch(API_URL + "/api/students", {
+      await fetch(
+        API_URL + "/api/students",
+        {
+          method: "GET",
 
-        method: "GET",
-
-        headers: {
-          "Authorization":
-            "Bearer " + token
+          headers: {
+            "Authorization":
+              "Bearer " + token
+          }
         }
+      );
 
-      });
 
     const data =
       await response.json();
+
 
     const tableBody =
       document.getElementById(
         "studentTableBody"
       );
+
 
     if (
       !response.ok ||
@@ -409,6 +458,7 @@ async function loadStudents() {
       return;
     }
 
+
     if (!data.students.length) {
 
       tableBody.innerHTML =
@@ -421,17 +471,21 @@ async function loadStudents() {
       return;
     }
 
+
     tableBody.innerHTML = "";
+
 
     data.students.forEach(student => {
 
       const row =
         document.createElement("tr");
 
+
       const status =
         Number(student.active) === 1
           ? `<span class="status-active">Active</span>`
           : `<span class="status-inactive">Inactive</span>`;
+
 
       row.innerHTML = `
         <td>${escapeHTML(student.username || "")}</td>
@@ -442,9 +496,11 @@ async function loadStudents() {
         <td>${status}</td>
       `;
 
+
       tableBody.appendChild(row);
 
     });
+
 
   } catch (error) {
 
@@ -467,107 +523,154 @@ async function loadStudents() {
 
 document
   .getElementById("studentForm")
-  .addEventListener("submit", async function(event) {
+  .addEventListener(
+    "submit",
+    async function(event) {
 
-    event.preventDefault();
+      event.preventDefault();
 
-    const token =
-      localStorage.getItem("authToken");
 
-    const message =
-      document.getElementById("message");
+      const token =
+        localStorage.getItem(
+          "instructorToken"
+        );
 
-    message.textContent =
-      "Adding student...";
 
-    message.style.color =
-      "#333";
+      const message =
+        document.getElementById(
+          "message"
+        );
 
-    const studentData = {
 
-      username:
-        document.getElementById("username").value.trim(),
+      message.textContent =
+        "Adding student...";
 
-      password:
-        document.getElementById("password").value,
 
-      fullName:
-        document.getElementById("fullName").value.trim(),
+      message.style.color =
+        "#333";
 
-      rollNo:
-        document.getElementById("rollNo").value.trim(),
 
-      batch:
-        document.getElementById("batch").value.trim(),
+      const studentData = {
 
-      email:
-        document.getElementById("email").value.trim()
+        username:
+          document
+            .getElementById("username")
+            .value
+            .trim(),
 
-    };
+        password:
+          document
+            .getElementById("password")
+            .value,
 
-    try {
+        fullName:
+          document
+            .getElementById("fullName")
+            .value
+            .trim(),
 
-      const response =
-        await fetch(API_URL + "/api/students", {
+        rollNo:
+          document
+            .getElementById("rollNo")
+            .value
+            .trim(),
 
-          method: "POST",
+        batch:
+          document
+            .getElementById("batch")
+            .value
+            .trim(),
 
-          headers: {
+        email:
+          document
+            .getElementById("email")
+            .value
+            .trim()
 
-            "Content-Type":
-              "application/json",
+      };
 
-            "Authorization":
-              "Bearer " + token
 
-          },
+      try {
 
-          body:
-            JSON.stringify(studentData)
+        const response =
+          await fetch(
+            API_URL + "/api/students",
+            {
 
-        });
+              method: "POST",
 
-      const data =
-        await response.json();
+              headers: {
 
-      if (
-        !response.ok ||
-        data.status !== "success"
-      ) {
+                "Content-Type":
+                  "application/json",
+
+                "Authorization":
+                  "Bearer " + token
+
+              },
+
+              body:
+                JSON.stringify(
+                  studentData
+                )
+
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          data.status !== "success"
+        ) {
+
+          message.textContent =
+            data.message ||
+            "Failed to add student";
+
+
+          message.style.color =
+            "red";
+
+
+          return;
+        }
+
 
         message.textContent =
-          data.message ||
-          "Failed to add student";
+          "Student added successfully.";
+
+
+        message.style.color =
+          "green";
+
+
+        document
+          .getElementById(
+            "studentForm"
+          )
+          .reset();
+
+
+        await loadStudents();
+
+
+      } catch (error) {
+
+        message.textContent =
+          "Unable to connect to server.";
+
 
         message.style.color =
           "red";
 
-        return;
       }
 
-      message.textContent =
-        "Student added successfully.";
-
-      message.style.color =
-        "green";
-
-      document
-        .getElementById("studentForm")
-        .reset();
-
-      await loadStudents();
-
-    } catch (error) {
-
-      message.textContent =
-        "Unable to connect to server.";
-
-      message.style.color =
-        "red";
-
     }
-
-  });
+  );
 
 
 // ===============================
@@ -607,6 +710,7 @@ function goDashboard() {
   const loggedIn =
     await checkLogin();
 
+
   if (loggedIn) {
 
     await loadStudents();
@@ -619,3 +723,4 @@ function goDashboard() {
 
 </body>
 </html>
+```
